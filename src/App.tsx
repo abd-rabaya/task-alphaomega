@@ -1,33 +1,35 @@
-import React from "react";
+import React, { Suspense } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
-import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 const ChartView = React.lazy(() => import("./pages/chartView"));
+const PeopleView = React.lazy(() => import("./pages/peopleView"));
+const Layout = React.lazy(() => import("./components/navbar/mainNavbar"));
+
+const queryClient = new QueryClient();
 
 const App = () => {
-
   return (
-    <BrowserRouter>
-      <div style={{ display: 'flex' }}>
-        <nav style={{ display: 'flex', margin: '0 16px', padding: '0 16px', border: '5px solid darkslateblue' }}>
-          <ul>
-            <li>
-              <Link to="/">ChartView</Link>
-            </li>
-            <li>
-              <Link to="/people_view">peopleView</Link>
-            </li>
-          </ul>
-        </nav>
-
-        <main>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Layout>
           <Routes>
-            <Route path="/" element={<ChartView />} />
-            <Route path="/about" element={<div>aaa</div>} />
+            <Route path="/" element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <ChartView />
+              </Suspense>
+            } />
+            <Route path="/people_view" element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <PeopleView />
+              </Suspense>
+
+            } />
           </Routes>
-        </main>
-      </div>
-    </BrowserRouter>
+        </Layout>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
-}
+};
 
 export default App;
