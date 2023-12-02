@@ -14,6 +14,8 @@ import {
     HeatmapLegend,
     CursorModifier
 } from "scichart";
+import * as Styles from "./HeatmapChart.styles";
+
 import { mockData } from "./mockdata.js"
 const divElementId = "chart";
 const divHeatmapLegend = "heatmapLegend";
@@ -226,7 +228,6 @@ export default function HeatmapChart() {
     });
     const sciChartSurfaceRef = React.useRef<SciChartSurface>();
     const heatmapLegendRef = React.useRef<HeatmapLegend>();
-    const [stats, setStats] = React.useState({ xSize: 0, ySize: 0, fps: 0 });
 
     React.useEffect(() => {
         const chartInitializationPromise = Promise.all([drawExample(), drawHeatmapLegend()]).then(([res, legend]) => {
@@ -234,19 +235,7 @@ export default function HeatmapChart() {
             heatmapLegendRef.current = legend;
             controlsRef.current = res.controls;
 
-            // Handle drawing/updating FPS
-            let lastRendered = Date.now();
-            res.sciChartSurface.rendered.subscribe(() => {
-                const currentTime = Date.now();
-                const timeDiffSeconds = new Date(currentTime - lastRendered).getTime() / 1000;
-                lastRendered = currentTime;
-                const fps = 1 / timeDiffSeconds;
-                setStats({
-                    xSize: res.heatmapDataSeries.arrayWidth,
-                    ySize: res.heatmapDataSeries.arrayHeight,
-                    fps
-                });
-            });
+  
             res.controls.startDemo();
         });
 
@@ -271,56 +260,16 @@ export default function HeatmapChart() {
 
 
     return (
-        <React.Fragment>
-            <div>
-                <div style={{
-                    width: "1000px",
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    background: appTheme.DarkIndigo
-                }}>
-                    <div style={{
-                        display: "flex",
-                        flex: "auto",
-                        flexBasis: "70px",
-                        padding: 3,
-                        gap: 8,
-                        width: "100%",
-                        color: appTheme.ForegroundColor
-
-                    }}>
-                        <button
-                            onClick={() => controlsRef.current.startDemo()}
-                        >
-                            Start
-                        </button>
-                        <button
-                            onClick={() => controlsRef.current.stopDemo()}
-                        >
-                            Stop
-                        </button>
-                        <span style={{ margin: 12, minWidth: "200px" }}>
-                            Heatmap chart
-                        </span>
-                        <span style={{ margin: 12 }}>FPS: {stats.fps.toFixed(0)}</span>
-                    </div>
-                    <div style={{ position: "relative" }}>
-                        <div id={divElementId} style={{ width: "100%", height: "100%" }}></div>
-                        <div
-                            id={divHeatmapLegend}
-                            style={{
-                                position: "absolute",
-                                height: "90%",
-                                width: "100px",
-                                top: 0,
-                                right: "75px",
-                                margin: "20"
-                            }}
-                        ></div>
-                    </div>
-                </div>
-            </div>
-        </React.Fragment>
+        <Styles.Container>
+        <Styles.ControlsContainer>
+            <Styles.Button onClick={() => controlsRef.current.startDemo()}>Start</Styles.Button>
+            <Styles.Button onClick={() => controlsRef.current.stopDemo()}>Stop</Styles.Button>
+            <span style={{ margin: 12, minWidth: "200px" }}>Heatmap chart</span>
+        </Styles.ControlsContainer>
+        <Styles.HeatmapChartContainer>
+            <Styles.HeatmapChart id="chart"></Styles.HeatmapChart>
+            <Styles.HeatmapLegendContainer id="heatmapLegend"></Styles.HeatmapLegendContainer>
+        </Styles.HeatmapChartContainer>
+    </Styles.Container>
     );
 }
