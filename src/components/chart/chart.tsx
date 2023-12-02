@@ -10,32 +10,30 @@ import {
     ZoomPanModifier,
     ZoomExtentsModifier,
     MouseWheelZoomModifier,
-    zeroArray2D,
     HeatmapLegend,
     CursorModifier
 } from "scichart";
 import * as Styles from "./HeatmapChart.styles";
 
-import { mockData } from "./mockdata.js"
+import { mockData1 } from "./mockdata1.js";
+import { mockData2 } from "./mockdata2.js";
+import { mockData3 } from "./mockdata3.js";
+import { mockData4 } from "./mockdata4.js";
+import { mockData5 } from "./mockdata5.js";
+import { mockData6 } from "./mockdata6.js";
 const divElementId = "chart";
 const divHeatmapLegend = "heatmapLegend";
-const MAX_SERIES = 100;
-const WIDTH = 600;
-const HEIGHT = 300;
 
-// Draws a Heatmap chart in real-time over the <div id={divElementId}>
 const drawExample = async () => {
-    // Create a SciChartSurface
     const { sciChartSurface, wasmContext } = await SciChartSurface.create(divElementId, {
         theme: appTheme.SciChartJsTheme
     });
 
-    // Add XAxis and YAxis
     sciChartSurface.xAxes.add(new NumericAxis(wasmContext));
     sciChartSurface.yAxes.add(new NumericAxis(wasmContext));
 
-    // Create a Heatmap Data-series. Pass heatValues as a number[][] to the UniformHeatmapDataSeries
-    const initialZValues: number[][] = generateExampleData(WIDTH, HEIGHT, 200, 16.5, MAX_SERIES);
+    const initialZValues: number[][] = mockData1;
+    console.log("initialZValues1",initialZValues);
     const heatmapDataSeries = new UniformHeatmapDataSeries(wasmContext, {
         xStart: 0,
         xStep: 1,
@@ -44,8 +42,6 @@ const drawExample = async () => {
         zValues: initialZValues
     });
 
-    // Create a Heatmap RenderableSeries with the color map. ColorMap.minimum/maximum defines the values in
-    // HeatmapDataSeries which correspond to gradient stops at 0..1
     const heatmapSeries = new UniformHeatmapRenderableSeries(wasmContext, {
         dataSeries: heatmapDataSeries,
         useLinearTextureFiltering: false,
@@ -72,16 +68,12 @@ const drawExample = async () => {
     sciChartSurface.chartModifiers.add(new ZoomExtentsModifier());
     sciChartSurface.chartModifiers.add(new MouseWheelZoomModifier());
     const cursorModifier = new CursorModifier({
-        // Optional properties to configure what parts are shown
         showTooltip: true,
         showAxisLabels: true,
         showXLine: true,
         showYLine: true,
-        // How close to a datapoint to show the tooltip? 10 = 10 pixels. 0 means always
-        // Optional properties to configure the axis labels
         axisLabelFill: "#b36200",
         axisLabelStroke: "#fff",
-        // Optional properties to configure line and tooltip style
         crosshairStroke: "#ff6600",
         crosshairStrokeThickness: 1,
         tooltipContainerBackground: "#000",
@@ -94,7 +86,7 @@ const drawExample = async () => {
                     lineItems.push(`X: ${si.xValue.toFixed(2)}`);
                     lineItems.push(`Y: ${si.yValue.toFixed(2)}`);
                     lineItems.push(`z- temperature: ${si.zValue.toFixed(2)}`);
-                    lineItems.push(`time: ${updateIndex / 16.5}`);
+                    lineItems.push(`time: ${time}`);
                 }
             });
 
@@ -104,19 +96,16 @@ const drawExample = async () => {
 
     sciChartSurface.chartModifiers.add(cursorModifier);
 
-    // Functions for running the example in real-time
     let timerId: number | undefined;
-    let updateIndex: number = 0;
     let time: number = 0;
 
     const updateChart = () => {
         time = time + 1;
-        // Cycle through pre-generated data on timer tick
-        const newZValues = generateExampleData(WIDTH, HEIGHT, 200, updateIndex += 16.5, MAX_SERIES);
-        // Update the heatmap z-values
+        const allMockData = [mockData1, mockData2, mockData3, mockData4, mockData5, mockData6, mockData2, mockData3]
+        const newZValues = allMockData[time] ;
         heatmapDataSeries.setZValues(newZValues);
-        if (updateIndex >= MAX_SERIES) {
-            updateIndex = 0;
+        if (time == 7) {
+            time = 0;
             stopDemo();
             return
         }
@@ -179,48 +168,6 @@ const drawHeatmapLegend = async () => {
     return heatmapLegend;
 };
 
-// This function generates data for the heatmap series example
-// because data-generation is not trivial, we generate once before the example starts
-// so you can see the speed & power of SciChart.js
-function generateExampleData(
-    width: number,
-    height: number,
-    cpMax: number,
-    index: number,
-    maxIndex: number
-): number[][] {
-    // Returns a 2-dimensional javascript array [height (y)] [width (x)] size
-    const zValues = zeroArray2D([height, width]);
-
-
-    // math.round but to X digits
-    function roundTo(number: number, digits: number) {
-        return number;
-        // return parseFloat(number.toFixed(digits));
-    }
-
-    const angle = roundTo(Math.PI * 2 * index, 3) / maxIndex;
-
-    // When appending data to a 2D Array for the heatmap, the order of appending (X,Y) does not matter
-    // but when accessing the zValues[][] array, we set data [y] then [x]
-    for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-            const v =
-                (1 + roundTo(Math.sin(x * 0.04 + angle), 3)) * 50 +
-                (1 + roundTo(Math.sin(y * 0.1 + angle), 3)) * 50 * (1 + roundTo(Math.sin(angle * 2), 3));
-            const cx = width / 2;
-            const cy = height / 2;
-            const r = Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy));
-            const exp = Math.max(0, 1 - r * 0.008);
-            const zValue = v * exp + Math.random() * 10;
-            zValues[y][x] = zValue > cpMax ? cpMax : zValue;
-        }
-    }
-    return zValues;
-};
-
-// React component needed as our examples app is react.
-// SciChart can be used in Angular, Vue, Blazor and vanilla JS! See our Github repo for more info
 export default function HeatmapChart() {
     const controlsRef = React.useRef({
         startDemo: () => { },
@@ -239,7 +186,6 @@ export default function HeatmapChart() {
             res.controls.startDemo();
         });
 
-        // Delete sciChartSurface on unmount component to prevent memory leak
         return () => {
             // check if chart is already initialized
             if (sciChartSurfaceRef.current) {
