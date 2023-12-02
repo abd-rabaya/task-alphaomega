@@ -67,7 +67,7 @@ const PeopleTable: React.FC = () => {
                     variant='standard'
                     onChange={handleSearchChange}
                 />
-                                {isLoading || isFetching && <div>Loading...</div>}
+                                {(isLoading || isFetching) && <div>Loading...</div>}
 
                 <Table sx={{ minWidth: 1000 }} aria-label="simple table">
                     <TableHead>
