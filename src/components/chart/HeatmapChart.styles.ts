@@ -3,9 +3,6 @@ import { appTheme } from "scichart-example-dependencies";
 
 export const Container = styled.div`
     width: 1000px;
-    height: 90%;
-    display: flex;
-    flex-direction: column;
     background: ${appTheme.DarkIndigo};
 `;
 
@@ -25,6 +22,7 @@ export const Button = styled.button`
 
 export const HeatmapChartContainer = styled.div`
     position: relative;
+    height: 700px;
 `;
 
 export const HeatmapChart = styled.div`
@@ -34,8 +32,8 @@ export const HeatmapChart = styled.div`
 
 export const HeatmapLegendContainer = styled.div`
     position: absolute;
-    height: 90%;
+    height: 62vh;
     width: 100px;
-    bottom: 700px;
+    bottom: 650px;
     margin: 20px;
 `;
