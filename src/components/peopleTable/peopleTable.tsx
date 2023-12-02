@@ -35,7 +35,7 @@ const PeopleTable: React.FC = () => {
         enabled: true,
       });
 
-    const pagesCount = Math.ceil(data?.count / 10) || 1;
+    const pagesCount = Math.ceil(data?.count / 10) ;
 
     const handleLoadMore = (page: number) => {
         setCurrentPage(page);

@@ -3,7 +3,7 @@ import { appTheme } from "scichart-example-dependencies";
 
 export const Container = styled.div`
     width: 1000px;
-    height: 100%;
+    height: 90%;
     display: flex;
     flex-direction: column;
     background: ${appTheme.DarkIndigo};
